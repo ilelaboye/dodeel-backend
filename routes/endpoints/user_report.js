@@ -36,8 +36,8 @@ let routes = (app) => {
     app.get('/user/user_reports', async (req, res) => {
         try {
             const responses = verifyToken({ authToken: req.header('authorization') });
-            let user_reports = await Report.find({user_id: responses.data.id  }).sort({ createdAt: -1 })
-                .populate("report_id").populate("user_id")
+            console.log(responses)
+            let user_reports = await Report.find({user_id: responses.data.id  }).sort({ createdAt: -1 }).populate("report_id").populate("user_id")
             res.json(user_reports)
         }
         catch (err) {
