@@ -1,4 +1,4 @@
-const Product = require('../../models/product');
+const Report = require('../../models/reports');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs')
@@ -17,79 +17,62 @@ async function ImageUpload(file) {
 
 let routes = (app) => {
 
-    //   get image by server
-    //   app.get('/images/:key', (req, res) => {
-    //     console.log(req.params)
-    //     const key = req.params.key
-    //     const readStream = getFileStream(key)
+  
 
-    //     readStream.pipe(res)
-    //   })
+    app.post('/report', upload.single('image'), async (req, res) => {
 
-    app.post('/product', upload.single('image'), async (req, res) => {
-
-        const file = req.file
-
-        const imageLink = await ImageUpload(file)
-        if (imageLink) {
             try {
-                let product = new Product({ ...req.body, image: imageLink });
-                await product.save()
-                res.json(product)
+                let report = new Report({ ...req.body });
+                await report.save()
+                res.json(report)
             }
             catch (err) {
                 console.log(err)
                 res.status(500).send(err)
             }
-        } else {
-            res.status(305).send("image filed to upload")
-        }
-    });
+       });
 
-    // get product according to categories
-    app.get('/products-by-category', async (req, res) => {
+    // get report according to categories
+    app.get('/reports-by-category', async (req, res) => {
         try {
-            let products = await Product.find({ status: 2, category_id: req.query.category }).sort({ createdAt: -1 })
+            let reports = await Report.find({ status: 2, category_id: req.query.category }).sort({ createdAt: -1 })
                 .populate("user_id", "firstname lastname role")
                 .populate("category_id", "title")
-            res.json(products)
+            res.json(reports)
         }
         catch (err) {
             res.status(400).send(err)
         }
     });
 
-    // get all products
-    app.get('/products', async (req, res) => {
+    // get all reports
+    app.get('/reports', async (req, res) => {
         const page = parseInt(req.query.limit)  - 10 || 0;
         const limit = parseInt(req.query.limit) || 10;
         const search = req.query.search || "";
 
         try {
-            let count = await Product.count()
-            let products = await Product.find(({ itemName: { $regex: search, $options: "i" }, status:2 })).skip(page).limit(limit).sort({ createdAt: -1 })
-                .populate("user_id", "firstname lastname role")
-                .populate("category_id", "title")
-
-            res.json({ products, pageNumber: Math.round((count / (limit-page)) + 0.4) })
+            let count = await Report.count()
+            let reports = await Report.find().skip(page).limit(limit).sort({ createdAt: -1 })
+            res.json({ reports, pageNumber: Math.round((count / (limit-page)) + 0.4) })
         }
         catch (err) {
             res.status(400).send(err)
         }
     });
 
-    app.get('/products/adminAccess', async (req, res) => {
+    app.get('/reports/adminAccess', async (req, res) => {
         const page = parseInt(req.query.limit)  - 10 || 0;
         const limit = parseInt(req.query.limit) || 5;
         const search = req.query.search || "";
 
         try {
-            let count = await Product.count()
-            let products = await Product.find(({ itemName: { $regex: search, $options: "i" } })).skip(page).limit(limit).sort({ createdAt: -1 })
+            let count = await Report.count()
+            let reports = await Report.find(({ itemName: { $regex: search, $options: "i" } })).skip(page).limit(limit).sort({ createdAt: -1 })
                 .populate("user_id", "firstname lastname role")
                 .populate("category_id", "title")
 
-            res.json({ products, pageNumber: Math.round((count / (limit-page)) + 0.4) })
+            res.json({ reports, pageNumber: Math.round((count / (limit-page)) + 0.4) })
         }
         catch (err) {
             res.status(400).send(err)
@@ -97,8 +80,8 @@ let routes = (app) => {
     });
 
 
-    // search for all product
-    app.get('/products/search', async (req, res) => {
+    // search for all report
+    app.get('/reports/search', async (req, res) => {
 
         const page = parseInt(req.query.page) - 10 || 0;
         const limit = parseInt(req.query.limit) || 10;
@@ -107,9 +90,9 @@ let routes = (app) => {
         let genre = req.query.genre || "All";
 
         try {
-            let products = await Product.find(({ itemName: { $regex: search, $options: "i" }, status:2}))
+            let reports = await Report.find(({ itemName: { $regex: search, $options: "i" }, status:2}))
 
-            res.json(products)
+            res.json(reports)
         }
         catch (err) {
             res.status(400).send(err)
@@ -118,7 +101,7 @@ let routes = (app) => {
 
 
     
-    app.get('/products/admin/search', async (req, res) => {
+    app.get('/reports/admin/search', async (req, res) => {
 
         const page = parseInt(req.query.page) - 10 || 0;
         const limit = parseInt(req.query.limit) || 10;
@@ -127,47 +110,47 @@ let routes = (app) => {
         let genre = req.query.genre || "All";
 
         try {
-            let products = await Product.find(({ itemName: { $regex: search, $options: "i" }}))
+            let reports = await Report.find(({ itemName: { $regex: search, $options: "i" }}))
 
-            res.json(products)
+            res.json(reports)
         }
         catch (err) {
             res.status(400).send(err)
         }
     });
-    // get latest 8 products
-    app.get('/product-8', async (req, res) => {
+    // get latest 8 reports
+    app.get('/report-8', async (req, res) => {
         try {
-            let products = await Product.find().sort({ createdAt: -1 }).limit(8)
+            let reports = await Report.find().sort({ createdAt: -1 }).limit(8)
                 .populate("user_id", "firstname lastname role")
                 .populate("category_id", "title")
-            res.json(products)
+            res.json(reports)
         }
         catch (err) {
             res.status(500).send(err)
         }
     });
 
-    app.get('/product/:id', async (req, res) => {
+    app.get('/report/:id', async (req, res) => {
         try {
-            let products = await Product.findOne({ _id: req.params.id })
+            let reports = await Report.findOne({ _id: req.params.id })
                 .populate("user_id", "firstname lastname").populate("category_id")
-            res.json(products)
+            res.json(reports)
         }
         catch (err) {
             res.status(500).send(err)
         }
     });
 
-    app.put('/product/:id', upload.single('image'), async (req, res) => {
+    app.put('/report/:id', upload.single('image'), async (req, res) => {
         const file = req.file
         if (file) {
             const imageLink = await ImageUpload(file)
             if (imageLink) {
                 const update = { ...req.body, image: imageLink }
                 try {
-                    let product = await Product.updateOne({ _id: req.params.id }, update, { returnOriginal: false });
-                    res.json(product)
+                    let report = await Report.updateOne({ _id: req.params.id }, update, { returnOriginal: false });
+                    res.json(report)
                 }
                 catch (err) {
                     console.log(err)
@@ -179,9 +162,9 @@ let routes = (app) => {
         } else {
             try {
                 let update = req.body;
-                let product = await Product.updateOne({ _id: req.params.id }, update, { returnOriginal: false })
+                let report = await Report.updateOne({ _id: req.params.id }, update, { returnOriginal: false })
                     .populate("user_id", "firstname lastname")
-                return res.json(product)
+                return res.json(report)
             }
             catch (err) {
                 res.status(500).send(err)
@@ -192,12 +175,12 @@ let routes = (app) => {
     });
 
 
-    app.put('/product/status/:id', async (req, res) => {
+    app.put('/report/status/:id', async (req, res) => {
 
         const update = { ...req.body }
         try {
-            let product = await Product.updateOne({ _id: req.params.id }, update, { returnOriginal: false });
-            res.json(product)
+            let report = await Report.updateOne({ _id: req.params.id }, update, { returnOriginal: false });
+            res.json(report)
         }
         catch (err) {
             console.log(err)
@@ -206,10 +189,10 @@ let routes = (app) => {
 
     });
 
-    app.delete('/product/:id', async (req, res) => {
+    app.delete('/report/:id', async (req, res) => {
         try {
-            await Product.deleteOne({_id:req.params.id})
-            res.json({ msg: "Product Deleted" })
+            await Report.deleteOne({_id:req.params.id})
+            res.json({ msg: "Report Deleted" })
         }
         catch (err) {
             res.status(500).send(err)

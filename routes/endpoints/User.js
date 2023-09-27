@@ -1,6 +1,6 @@
 require('dotenv').config();
 const User = require("../../models/user");
-const Package = require("../../models/product");
+const Package = require("../../models/reports");
 const multer = require('multer');
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
@@ -21,9 +21,8 @@ const { verifyToken } = tokenCallback()
 let routes = (app) => {
     app.post("/register", async (req, res) => {
         try {
-            const { firstname, lastname, email, password, phone, role, username, referalLink } = req.body;
-            
-            
+            const { firstname, lastname, email, password, phone, code, university, course, state, year, stream, profile, batch, } = req.body;
+
             if (!firstname || !lastname || !email || !password)
                 return res.status(400).json({ msg: "Please fill in all fields, one or more fileds are empty!" })
 
@@ -33,11 +32,6 @@ let routes = (app) => {
             const user = await User.findOne({ email })
             if (user) return res.status(400).json({ msg: "This email already exists, please use another email address!" })
 
-            const referral = await User.findOne({ username:referalLink })
-            if (referalLink.length > 1 && !referral) return res.status(400).json({ msg: "This user does not exists, please use another referral address!" })
-
-            const usernamer = await User.findOne({ username })
-            if (usernamer) return res.status(400).json({ msg: "This username already exists, please use another email address!" })
 
             if (password.length < 8)
                 return res.status(400).json({ msg: "Password must be atleaast 8 characters long!" })
@@ -45,7 +39,7 @@ let routes = (app) => {
             const passwordHash = await bcrypt.hash(password, 12)
 
             const newUser = {
-                firstname, lastname, email, password: passwordHash, phone, role, username, referalLink
+                firstname, lastname, email, password, phone, role, code, university, course, state, year, stream, profile, batch
             }
             let user_ = new User(newUser);
             await user_.save();
@@ -120,15 +114,8 @@ let routes = (app) => {
 
             let user_ = new User(newUser);
 
-            // const activation_token = createActivationToken(newUser)
-
-            // const url = `${CLIENT_URL}/user/activate/${activation_token}`
-
-            // sendMail(email, url, "Verify your email address")
             await user_.save();
-            // res.json({ msg: "Registration Successful, Please check you email for verification mail to activate your account!" })
             res.status(200).json({ msg: "Registration Successful, Please proceed to login!" })
-
         }
         catch (err) {
             console.log('error o')
@@ -165,7 +152,7 @@ let routes = (app) => {
         const responses = verifyToken({ authToken: req.header('authorization') })
 
         try {
-            let users = await User.find({ referalLink: responses.data.username, role:"user" })
+            let users = await User.find({ referalLink: responses.data.username, role: "user" })
             res.json(users)
         }
         catch (err) {
@@ -217,7 +204,7 @@ let routes = (app) => {
 
                 let user = await User.findOne({ _id: req.params.id })
                 let product = await Package.findOne({ user_id: req.params.id }).count()
-                res.json({ user: user, package:package })
+                res.json({ user: user, package: package })
             } catch (err) {
                 res.status(500).send(err)
             }
@@ -265,8 +252,8 @@ let routes = (app) => {
             const isMatch = await bcrypt.compare(password, user.password)
             if (!isMatch) return res.status(400).json({ msg: "Password is incorrect." })
             await User.updateOne({ email }, { status: "active" }, { returnOriginal: false })
-            const token = createAccessToken({ id: user._id, role: user.role, username: user.username })
-
+            const token = createAccessToken({ id: user._id, role: user.role })
+            console.log("heloo")
             const refresh_token = createRefreshToken({ id: user._id })
             res.cookie('refreshtoken', refresh_token, {
                 httpOnly: true,
@@ -277,8 +264,7 @@ let routes = (app) => {
             res.json({
                 msg: "Login successful!",
                 userID: user._id,
-                access_token: token, 
-                username: user.username
+                access_token: token
             })
         }
         catch (err) {
@@ -305,11 +291,11 @@ function validateEmail(email) {
 };
 
 function createAccessToken(payload) {
-    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '7d' })
+    return jwt.sign(payload, process.env.JWT_TOKEN_SECRET, { expiresIn: '7d' })
 };
 
 function createRefreshToken(payload) {
-    return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
+    return jwt.sign(payload, process.env.JWT_TOKEN_SECRET, { expiresIn: '7d' })
 };
 
 module.exports = routes;

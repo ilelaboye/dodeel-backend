@@ -3,19 +3,21 @@ const mongoose = require('mongoose');
 const UserSchema = new mongoose.Schema({
     firstname: { type: String, required: true, trim: true },
     lastname: { type: String, required: true, trim: true },
-    username: { type: String, required: true, trim: true },
+    university: { type: String, trim: true },
+    course: { type: String, trim: true },
+    state: { type: String, trim: true },
+    year: { type: String, trim: true },
+    code: { type: String, trim: true },
+    stream: { type: String, trim: true },
+    profile: { type: String, trim: true },
+    batch: { type: String, trim: true },
+    picture: { type: String, trim: true },
     email: { type: String, unique: true, required: true, lowercase: true, trim: true },
-    password: { type: String, minlength: 8, trim: true, required: true },
-    phone: { type: String, minlength: 10, maxlength: 11 },
-    referrals: [{
-        type: mongoose.Types.ObjectId,
-        ref: "users"
-    }],
-    referalLink:{ type: String, trim: true },
-    order: { type: Number, default: 0 },
+    password: { type: String, required: true, minlength: 8, trim: true, required: true },
+    phone: { type: String, required: true, minlength: 10, maxlength: 11 },
     status: { type: String, default: "inactive" },
     role: {
-        type: String,
+        type: String, 
         enum: ['user', 'admin'],
         default: 'user'
     }
@@ -23,7 +25,7 @@ const UserSchema = new mongoose.Schema({
     toJSON: {
         transform(doc, ret) {
             delete ret.__v;
-             },
+        },
     },
     timestamps: true
 });

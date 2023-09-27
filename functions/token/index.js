@@ -3,9 +3,9 @@ let responses
 
 function tokenCallback()  {
     const verifyToken=({ authToken }) => {
-        const token = authToken.split(' ')    
+        const token = authToken.split(' ') 
         try {
-            jwt.verify(token[1], process.env.ACCESS_TOKEN_SECRET, function (err, decoded) { 
+            jwt.verify(token[1], process.env.JWT_TOKEN_SECRET, function (err, decoded) { 
                  if(err){
                     throw err
                     responses = {data:"token has expired.", status:500}
@@ -13,7 +13,7 @@ function tokenCallback()  {
                  } else {
                     responses = {data: decoded, status:500}
                 }
-
+ 
             });
         } catch (e) {
             throw err

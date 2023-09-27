@@ -31,5 +31,5 @@ app.use('*', cloudinaryConfig);
 app.get('/', (req, res) => {
     res.send("this is index route for endpoints, welcome to your MASSBUY project endpoints");
 });
-app.listen(PORT);
+app.listen(PORT); 
 console.log('App is running on port:' + PORT);
