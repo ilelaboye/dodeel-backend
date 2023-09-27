@@ -33,7 +33,7 @@ let routes = (app) => {
         }
     });
 
-    app.get('/user/user_reports', async (req, res) => {
+    app.get('/user_reports/user/user_reports', async (req, res) => {
         try {
             const responses = verifyToken({ authToken: req.header('authorization') });
             console.log(responses)
@@ -48,6 +48,17 @@ let routes = (app) => {
     app.get('/user_report/:id', async (req, res) => {
         try {
             let user_reports = await Report.find({ _id: req.params.id })
+                .populate("report_id")
+            res.json(user_reports)
+        }
+        catch (err) {
+            res.status(500).send(err)
+        }
+    });
+
+    app.get('/user_report_by_id/:id', async (req, res) => {
+        try {
+            let user_reports = await Report.find({ user_id: req.params.id })
                 .populate("report_id")
             res.json(user_reports)
         }
