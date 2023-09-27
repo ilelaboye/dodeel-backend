@@ -24,7 +24,7 @@ let routes = (app) => {
     app.get('/admin/user_reports', async (req, res) => {
         try {
 
-            let user_reports = await Report.find().sort({ createdAt: -1 }).populate("report_id").populate("users")
+            let user_reports = await Report.find().sort({ createdAt: -1 }).populate("report_id").populate("user_id")
 
             res.json(user_reports)
         }
@@ -37,7 +37,7 @@ let routes = (app) => {
         try {
             const responses = verifyToken({ authToken: req.header('authorization') });
             let user_reports = await Report.find({user_id: responses.data.id  }).sort({ createdAt: -1 })
-                .populate("report_id").populate("users")
+                .populate("report_id").populate("user_id")
             res.json(user_reports)
         }
         catch (err) {
