@@ -24,8 +24,7 @@ let routes = (app) => {
     app.get('/admin/user_reports', async (req, res) => {
         try {
 
-            let user_reports = await Report.find().sort({ createdAt: -1 })
-                .populate("report_id").populate("users")
+            let user_reports = await Report.find().sort({ createdAt: -1 }).populate("report_id").populate("users")
 
             res.json(user_reports)
         }
