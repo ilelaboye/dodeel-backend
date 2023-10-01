@@ -39,7 +39,7 @@ let routes = (app) => {
             const passwordHash = await bcrypt.hash(password, 12)
 
             const newUser = {
-                firstname, lastname, email, password, phone, code, university, course, state, year, stream, profile, batch
+                firstname, lastname, email, password:passwordHash, phone, code, university, course, state, year, stream, profile, batch
             }
             let user_ = new User(newUser);
             await user_.save();
