@@ -188,7 +188,6 @@ let routes = (app) => {
 
         try {
             let user = await User.findOne({ _id: responses.data.id })
-                .populate("referrals", "firstname lastname email")
             res.json(user)
         }
         catch (err) {
