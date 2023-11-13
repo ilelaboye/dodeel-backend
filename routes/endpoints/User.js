@@ -74,7 +74,7 @@ let routes = (app) => {
             const passwordHash = await bcrypt.hash(password, 12)
 
             const newUser = {
-                firstname, lastname, email, password: passwordHash, phone, role
+                ...req.body, password: passwordHash
             }
             let user_ = new User(newUser)
             user_.referalLink = "/register/referral/" + user_._id
