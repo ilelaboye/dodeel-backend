@@ -6,6 +6,8 @@ const UserSchema = new mongoose.Schema({
     university: { type: String, trim: true },
     course: { type: String, trim: true },
     state: { type: String, trim: true },
+    local: { type: String, trim: true },
+    primary: { type: String, trim: true },
     year: { type: String, trim: true },
     code: { type: String, trim: true },
     stream: { type: String, trim: true },
